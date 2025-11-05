@@ -49,7 +49,7 @@ fun WelcomeScreen(onGetStartedClick: () -> Unit, modifier: Modifier = Modifier) 
     Box(modifier = modifier.fillMaxSize()) {
         // Background image full-screen
         Image(
-            painter = painterResource(R.drawable.tugu_welcome),
+            painter = painterResource(R.drawable.tugu_welcome_page),
             contentDescription = "Background Tugu",
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
@@ -69,15 +69,24 @@ fun WelcomeScreen(onGetStartedClick: () -> Unit, modifier: Modifier = Modifier) 
         )
 
         // Logo + Judul di tengah atas
-        Column(
+        Row(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 24.dp, vertical = 32.dp),
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally
+            verticalAlignment = Alignment.Top,
+            horizontalArrangement = Arrangement.Center
+//            verticalArrangement = Arrangement.Top,
+//            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(48.dp)) // ruang atas supaya logo tidak terlalu menempel statusbar
             // jika punya icon logo, aktifkan Image di bawah:
+            Image(
+            painter = painterResource(R.drawable.logo),
+            contentDescription = "logo aplikasi",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .size(60.dp)
+        )
             // Image(painter = painterResource(R.drawable.ic_logo), contentDescription = "logo", modifier = Modifier.size(56.dp))
             Text(
                 text = "JogjaGo",
