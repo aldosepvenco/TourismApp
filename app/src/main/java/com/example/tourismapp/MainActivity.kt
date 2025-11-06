@@ -1,6 +1,5 @@
 package com.example.tourismapp
 
-import android.R.attr.text
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -21,15 +20,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -43,14 +41,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavType
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.tourismapp.ui.theme.TourismAppTheme
+import androidx.navigation.navArgument
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.shadow
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -91,6 +92,19 @@ fun TourismApp(modifier: Modifier = Modifier) {
             }
             composable("home") { HomeScreen(navController = navController) }
             composable("gunung_page") { gunungPage(navController = navController) }
+            composable(
+                "detail_gunung/{gunungId}",
+                arguments = listOf(navArgument("gunungId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                detailGunung(
+                    navController = navController,
+                    gunungId = backStackEntry.arguments?.getString("gunungId")
+                )
+            }
+            composable("detail_pantai/{pantaiId}",
+                arguments = listOf(navArgument("pantaiId") { type = NavType.StringType })) { backStackEntry ->
+                detailPantai(navController = navController, pantaiId = backStackEntry.arguments?.getString("pantaiId"))
+            }
             // Add other routes for the new pages
             composable("pantai_page") { PantaiPage(navController = navController) }
 //            composable("budaya_page") { BudayaPage(navController = navController) }
@@ -426,28 +440,35 @@ fun HomeScreen(navController: NavController, modifier: Modifier = Modifier) {
     }
 }
 
-data class Gunung(val name: String, val distance: String, val imageRes: Int)
-//data class Pantai(val name: String, val imageRes: Int)
+data class Gunung(val id: String, val name: String, val distance: String, val imageRes: Int, val description: String, val location: String)
 
 @Composable
 fun gunungPage(navController: NavController, modifier: Modifier = Modifier){
     val daftarGunung = remember {
         listOf(
-            Gunung("Gunung Merapi", "3km to city", R.drawable.merapi),
-            Gunung("Gunung Merbabu", "5km to city", R.drawable.merbabu),
-            Gunung("Gunung Andong", "9km to city", R.drawable.merbabu), // Assuming merbabu drawable is a placeholder
-            Gunung("Gunung Kalitalang", "9km to city", R.drawable.destinasi2),
-            Gunung("Gunung Lawu", "9km to city", R.drawable.destinasi2),
-            Gunung("Gunung Sumbing", "9km to city", R.drawable.merbabu) // Assuming merbabu drawable is a placeholder
+            Gunung("merapi", "Gunung Merapi", "3km to city", R.drawable.merapi, "Gunung Merapi adalah gunung berapi paling aktif di Indonesia dan telah meletus secara teratur sejak 1548. Terletak di perbatasan antara Jawa Tengah dan Yogyakarta, gunung ini sangat penting bagi orang Jawa, yang percaya bahwa itu adalah tempat kediaman dewa.", "Sleman, Yogyakarta"),
+            Gunung("merbabu", "Gunung Merbabu", "5km to city", R.drawable.merbabu, "Gunung Merbabu adalah gunung berapi stratovolcano di Jawa Tengah. Namanya secara harfiah berarti 'Gunung Abu'. Pemandangan dari puncaknya sangat indah, terutama saat matahari terbit, dengan pemandangan Gunung Merapi di dekatnya.", "Boyolali, Jawa Tengah"),
+            Gunung("andong", "Gunung Andong", "9km to city", R.drawable.merbabu, "Gunung Andong adalah gunung yang ramah bagi pendaki pemula. Dengan ketinggian sekitar 1.726 mdpl, puncaknya menawarkan pemandangan 360 derajat yang menakjubkan dari gunung-gunung sekitarnya.", "Magelang, Jawa Tengah"), // Assuming merbabu drawable is a placeholder
+            Gunung("kalitalang", "Gunung Kalitalang", "9km to city", R.drawable.destinasi2, "Kalitalang adalah sebuah desa wisata di lereng Gunung Merapi yang menawarkan pemandangan alam yang indah dan udara sejuk. Tempat ini menjadi populer sebagai spot foto dengan latar belakang gagahnya Gunung Merapi.", "Klaten, Jawa Tengah"),
+            Gunung("lawu", "Gunung Lawu", "9km to city", R.drawable.destinasi2, "Gunung Lawu terletak di perbatasan Jawa Tengah dan Jawa Timur. Gunung ini memiliki signifikansi historis dan spiritual, dengan beberapa candi (candi) di lerengnya. Puncaknya adalah Hargo Dumilah.", "Karanganyar, Jawa Tengah"),
+            Gunung("sumbing", "Gunung Sumbing", "9km to city", R.drawable.merbabu, "Gunung Sumbing adalah gunung tertinggi ketiga di Jawa, setelah Gunung Semeru dan Gunung Slamet. Berdampingan dengan Gunung Sindoro, keduanya sering disebut sebagai 'gunung kembar'.", "Temanggung, Jawa Tengah") // Assuming merbabu drawable is a placeholder
         )
     }
 
-    Column(modifier = modifier.fillMaxSize().padding(8.dp)) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(bottom = 16.dp)
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(8.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp)
         ) {
-            IconButton(onClick = { navController.popBackStack() }) {
+            IconButton(
+                onClick = { navController.popBackStack() },
+                modifier = Modifier.align(Alignment.CenterStart)
+            ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Return"
@@ -459,8 +480,7 @@ fun gunungPage(navController: NavController, modifier: Modifier = Modifier){
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.headlineMedium,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-                    .padding(horizontal = 16.dp)
+                modifier = Modifier.align(Alignment.Center)
             )
         }
 
@@ -468,11 +488,17 @@ fun gunungPage(navController: NavController, modifier: Modifier = Modifier){
             columns = GridCells.Fixed(2),
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.padding(horizontal = 8.dp)
         ) {
-            items(daftarGunung.size) { index ->
-                val gunung = daftarGunung[index]
+            items(daftarGunung) { gunung ->
                 Column(
-                    modifier = Modifier.clip(RoundedCornerShape(8.dp))
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .shadow(4.dp, RoundedCornerShape(8.dp))
+                        .clickable {
+                            navController.navigate("detail_gunung/${gunung.id}")
+                        }
                 ) {
                     Image(
                         painter = painterResource(id = gunung.imageRes),
@@ -481,10 +507,21 @@ fun gunungPage(navController: NavController, modifier: Modifier = Modifier){
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(120.dp)
+                            .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp))
                     )
-                    Column(modifier = Modifier.padding(8.dp)) {
-                        Text(text = gunung.name, fontWeight = FontWeight.Bold)
-                        Text(text = gunung.distance, style = MaterialTheme.typography.bodySmall)
+                    Column(
+                        modifier = Modifier
+                            .padding(8.dp)
+                    ) {
+                        Text(
+                            text = gunung.name,
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Text(
+                            text = gunung.distance,
+                            style = MaterialTheme.typography.bodySmall
+                        )
                     }
                 }
             }
@@ -492,51 +529,176 @@ fun gunungPage(navController: NavController, modifier: Modifier = Modifier){
     }
 }
 
-data class Pantai(val name: String, val imageRes: Int)
+@Composable
+fun detailGunung(navController: NavController, gunungId: String?) {
+    // This is a simple way to get the list of mountains again.
+    // In a real app, you might use a ViewModel to provide this data.
+    val daftarGunung = remember {
+        listOf(
+            Gunung("merapi", "Gunung Merapi", "3km to city", R.drawable.merapi, "Gunung Merapi adalah gunung berapi paling aktif di Indonesia dan telah meletus secara teratur sejak 1548. Terletak di perbatasan antara Jawa Tengah dan Yogyakarta, gunung ini sangat penting bagi orang Jawa, yang percaya bahwa itu adalah tempat kediaman dewa.", "Sleman, Yogyakarta"),
+            Gunung("merbabu", "Gunung Merbabu", "5km to city", R.drawable.merbabu, "Gunung Merbabu adalah gunung berapi stratovolcano di Jawa Tengah. Namanya secara harfiah berarti 'Gunung Abu'. Pemandangan dari puncaknya sangat indah, terutama saat matahari terbit, dengan pemandangan Gunung Merapi di dekatnya.", "Boyolali, Jawa Tengah"),
+            Gunung("andong", "Gunung Andong", "9km to city", R.drawable.merbabu, "Gunung Andong adalah gunung yang ramah bagi pendaki pemula. Dengan ketinggian sekitar 1.726 mdpl, puncaknya menawarkan pemandangan 360 derajat yang menakjubkan dari gunung-gunung sekitarnya.", "Magelang, Jawa Tengah"),
+            Gunung("kalitalang", "Gunung Kalitalang", "9km to city", R.drawable.destinasi2, "Kalitalang adalah sebuah desa wisata di lereng Gunung Merapi yang menawarkan pemandangan alam yang indah dan udara sejuk. Tempat ini menjadi populer sebagai spot foto dengan latar belakang gagahnya Gunung Merapi.", "Klaten, Jawa Tengah"),
+            Gunung("lawu", "Gunung Lawu", "9km to city", R.drawable.destinasi2, "Gunung Lawu terletak di perbatasan Jawa Tengah dan Jawa Timur. Gunung ini memiliki signifikansi historis dan spiritual, dengan beberapa candi (candi) di lerengnya. Puncaknya adalah Hargo Dumilah.", "Karanganyar, Jawa Tengah"),
+            Gunung("sumbing", "Gunung Sumbing", "9km to city", R.drawable.merbabu, "Gunung Sumbing adalah gunung tertinggi ketiga di Jawa, setelah Gunung Semeru dan Gunung Slamet. Berdampingan dengan Gunung Sindoro, keduanya sering disebut sebagai 'gunung kembar'.", "Temanggung, Jawa Tengah")
+        )
+    }
+
+    val gunung = daftarGunung.find { it.id == gunungId }
+
+    if (gunung == null) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text("Gunung tidak ditemukan!")
+        }
+        return
+    }
+
+    LazyColumn(modifier = Modifier.fillMaxSize()) {
+        // Image Header
+        item {
+            Box(modifier = Modifier.fillMaxWidth().height(300.dp)) {
+                Image(
+                    painter = painterResource(id = gunung.imageRes),
+                    contentDescription = gunung.name,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+                // Back button
+                IconButton(
+                    onClick = { navController.popBackStack() },
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .align(Alignment.TopStart)
+                        .background(Color.Black.copy(alpha = 0.5f), shape = CircleShape)
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Kembali",
+                        tint = Color.White
+                    )
+                }
+            }
+        }
+
+        // Content
+        item {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    text = gunung.name,
+                    style = MaterialTheme.typography.headlineLarge,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = gunung.location,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Tentang",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(text = gunung.description, style = MaterialTheme.typography.bodyLarge)
+            }
+        }
+
+        //Image
+        item{
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .padding(bottom = 16.dp)
+                    .height(200.dp), // Set a fixed height for the Row
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Image(
+                    painter = painterResource(id = gunung.imageRes),
+                    contentDescription = gunung.name,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .clip(RoundedCornerShape(12.dp))
+                )
+                Column(modifier = Modifier.weight(1f).fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Image(
+                        painter = painterResource(id = gunung.imageRes),
+                        contentDescription = gunung.name,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.weight(1f).fillMaxWidth().clip(RoundedCornerShape(12.dp))
+                    )
+                    Image(
+                        painter = painterResource(id = gunung.imageRes),
+                        contentDescription = gunung.name,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.weight(1f).fillMaxWidth().clip(RoundedCornerShape(12.dp))                    )
+                }
+            }
+        }
+    }
+}
+
+data class Pantai(val id: String, val name: String, val distance: String, val imageRes: Int, val description: String, val location: String)
 
 @Composable
 fun PantaiPage(navController: NavController, modifier: Modifier = Modifier) {
     val daftarPantai = remember {
         listOf(
-            Pantai("Pantai Marina", R.drawable.pantai1),
-            Pantai("Pantai Indah", R.drawable.pantai2),
-            Pantai("Pantai Baron", R.drawable.pantai3),
-            Pantai("Pantai Kukup", R.drawable.pantai1),
-            Pantai("Pantai Krakal", R.drawable.pantai2),
-            Pantai("Pantai Drini", R.drawable.pantai3)
+            Pantai("parangtritis", "Pantai Parangtritis", "27km to city", R.drawable.pantai1, "Pantai Parangtritis adalah salah satu pantai paling terkenal di Yogyakarta, dikenal dengan pemandangan matahari terbenamnya yang memukau, gumuk pasir, dan legenda Nyi Roro Kidul.", "Bantul, Yogyakarta"),
+            Pantai("indrayanti", "Pantai Indrayanti", "66km to city", R.drawable.pantai2, "Dikenal dengan pasir putihnya yang bersih dan air laut yang jernih, Pantai Indrayanti menawarkan berbagai fasilitas modern seperti restoran dan watersport.", "Gunungkidul, Yogyakarta"),
+            Pantai("baron", "Pantai Baron", "65km to city", R.drawable.pantai3, "Pantai Baron terkenal dengan sungai bawah tanah yang bertemu langsung dengan laut, menciptakan fenomena alam yang unik. Terdapat juga pasar ikan segar di pantai ini.", "Gunungkidul, Yogyakarta"),
+            Pantai("kukup", "Pantai Kukup", "65km to city", R.drawable.pantai1, "Pantai Kukup memiliki pulau karang kecil yang bisa dijangkau dengan jembatan, menawarkan pemandangan laut yang luas dari atas.", "Gunungkidul, Yogyakarta"),
+            Pantai("krakal", "Pantai Krakal", "66km to city", R.drawable.pantai2, "Pantai Krakal adalah surga bagi para peselancar dengan ombaknya yang menantang dan garis pantai yang panjang.", "Gunungkidul, Yogyakarta"),
+            Pantai("drini", "Pantai Drini", "60km to city", R.drawable.pantai3, "Pantai Drini adalah pantai unik yang dipisahkan oleh sebuah pulau kecil, sehingga memiliki dua sisi pantai dengan karakteristik ombak yang berbeda.", "Gunungkidul, Yogyakarta")
         )
     }
-
-    Column(modifier = modifier.fillMaxSize().padding(8.dp)) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(bottom = 16.dp)
-        ) {
-            IconButton(onClick = { navController.popBackStack() }) {
+    Column(
+        modifier = modifier
+        .fillMaxSize()
+        .padding(8.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp)
+        ){
+            IconButton(
+                onClick = { navController.popBackStack() },
+                modifier = Modifier.align(Alignment.CenterStart)
+            ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Return"
                 )
             }
+
             Text(
                 text = "Wisata Pantai",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.headlineMedium,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-                    .padding(end = 48.dp) // Adjust padding to center title with the back button
+                modifier = Modifier.align(Alignment.Center)
             )
         }
-
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.padding(bottom = 16.dp)
         ) {
             items(daftarPantai) { pantai ->
                 Column(
-                    modifier = Modifier.clip(RoundedCornerShape(8.dp))
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .shadow(4.dp, RoundedCornerShape(8.dp))
+                        .clickable{
+                            navController.navigate("detail_pantai/${pantai.id}")
+                        }
                 ) {
                     Image(
                         painter = painterResource(id = pantai.imageRes),
@@ -544,19 +706,139 @@ fun PantaiPage(navController: NavController, modifier: Modifier = Modifier) {
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(150.dp)
+                            .height(120.dp) // Adjusted height
+                            .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp))
                     )
-                    Text(
-                        text = pantai.name,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(8.dp)
-                    )
+                    Column(modifier = Modifier.padding(8.dp)) {
+                        Text(
+                            text = pantai.name,
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
                 }
             }
         }
     }
 }
 
+@Composable
+fun detailPantai(navController: NavController, pantaiId: String?) {
+    // This is a simple way to get the list of beaches again.
+    // In a real app, you might use a ViewModel to provide this data.
+    val daftarPantai = remember {
+        listOf(
+            Pantai("parangtritis", "Pantai Parangtritis", "27km to city", R.drawable.pantai1, "Pantai Parangtritis adalah salah satu pantai paling terkenal di Yogyakarta, dikenal dengan pemandangan matahari terbenamnya yang memukau, gumuk pasir, dan legenda Nyi Roro Kidul.", "Bantul, Yogyakarta"),
+            Pantai("indrayanti", "Pantai Indrayanti", "66km to city", R.drawable.pantai2, "Dikenal dengan pasir putihnya yang bersih dan air laut yang jernih, Pantai Indrayanti menawarkan berbagai fasilitas modern seperti restoran dan watersport.", "Gunungkidul, Yogyakarta"),
+            Pantai("baron", "Pantai Baron", "65km to city", R.drawable.pantai3, "Pantai Baron terkenal dengan sungai bawah tanah yang bertemu langsung dengan laut, menciptakan fenomena alam yang unik. Terdapat juga pasar ikan segar di pantai ini.", "Gunungkidul, Yogyakarta"),
+            Pantai("kukup", "Pantai Kukup", "65km to city", R.drawable.pantai1, "Pantai Kukup memiliki pulau karang kecil yang bisa dijangkau dengan jembatan, menawarkan pemandangan laut yang luas dari atas.", "Gunungkidul, Yogyakarta"),
+            Pantai("krakal", "Pantai Krakal", "66km to city", R.drawable.pantai2, "Pantai Krakal adalah surga bagi para peselancar dengan ombaknya yang menantang dan garis pantai yang panjang.", "Gunungkidul, Yogyakarta"),
+            Pantai("drini", "Pantai Drini", "60km to city", R.drawable.pantai3, "Pantai Drini adalah pantai unik yang dipisahkan oleh sebuah pulau kecil, sehingga memiliki dua sisi pantai dengan karakteristik ombak yang berbeda.", "Gunungkidul, Yogyakarta")
+        )
+    }
+    val pantai = daftarPantai.find { it.id == pantaiId }
+
+    if (pantai == null) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text("Pantai tidak ditemukan!")
+        }
+        return
+    }
+
+    LazyColumn(modifier = Modifier.fillMaxSize()) {
+        // Image Header
+        item {
+            Box(modifier = Modifier
+                .fillMaxWidth()
+                .height(300.dp)) {
+                Image(
+                    painter = painterResource(id = pantai.imageRes),
+                    contentDescription = pantai.name,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+                // Back button
+                IconButton(
+                    onClick = { navController.popBackStack() },
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .align(Alignment.TopStart)
+                        .background(Color.Black.copy(alpha = 0.5f), shape = CircleShape)
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Kembali",
+                        tint = Color.White
+                    )
+                }
+            }
+        }
+
+        // Content
+        item {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    text = pantai.name,
+                    style = MaterialTheme.typography.headlineLarge,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = pantai.location,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Tentang",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(text = pantai.description, style = MaterialTheme.typography.bodyLarge)
+            }
+        }
+
+        //Image
+        item{
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .padding(bottom = 16.dp)
+                    .height(200.dp), // Set a fixed height for the Row
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Image(
+                    painter = painterResource(id = pantai.imageRes),
+                    contentDescription = pantai.name,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .clip(RoundedCornerShape(12.dp))
+                )
+                Column(modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Image(
+                        painter = painterResource(id = R.drawable.pantai2), // Placeholder image
+                        contentDescription = pantai.name,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                    )
+                    Image(
+                        painter = painterResource(id = R.drawable.pantai3), // Placeholder image
+                        contentDescription = pantai.name,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.weight(1f).fillMaxWidth().clip(RoundedCornerShape(12.dp))                    )
+                }
+            }
+        }
+    }
+}
 
 //@Composable
 //fun BudayaPage(navController: NavController, modifier: Modifier = Modifier) {
