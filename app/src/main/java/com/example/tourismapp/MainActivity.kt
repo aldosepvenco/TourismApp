@@ -49,6 +49,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.tourismapp.ui.theme.TourismAppTheme
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 
@@ -94,9 +95,9 @@ fun TourismApp(modifier: Modifier = Modifier) {
             // Add other routes for the new pages
             composable("pantai_page") { PantaiPage(navController = navController) }
 //            composable("budaya_page") { BudayaPage(navController = navController) }
-//            composable("edukasi_page") { EdukasiPage(navController = navController) }
+            composable("edukasi_page") { EdukasiPage(navController = navController) }
 //            composable("kuliner_page") { KulinerPage(navController = navController) }
-//            composable("hiburan_page") { HiburanPage(navController = navController) }
+            composable("hiburan_page") { HiburanPage(navController = navController) }
 
         }
     }
@@ -427,6 +428,8 @@ fun HomeScreen(navController: NavController, modifier: Modifier = Modifier) {
 }
 
 data class Gunung(val name: String, val distance: String, val imageRes: Int)
+data class Edukasi(val name: String, val description: String, val imageRes: Int)
+data class Hiburan(val name: String, val description: String, val imageRes: Int)
 //data class Pantai(val name: String, val imageRes: Int)
 
 @Composable
@@ -551,6 +554,144 @@ fun PantaiPage(navController: NavController, modifier: Modifier = Modifier) {
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(8.dp)
                     )
+                }
+            }
+        }
+    }
+}
+@Composable
+fun EdukasiPage(navController: NavController, modifier: Modifier = Modifier) {
+    val daftarEdukasi = remember {
+        listOf(
+            Edukasi("Taman Pintar Yogyakarta", "Pusat sains interaktif anak-anak", R.drawable.taman_pintar),
+            Edukasi("Museum Benteng Vredeburg", "Edukasi sejarah perjuangan bangsa", R.drawable.vredeburg),
+            Edukasi("Museum Sonobudoyo", "Budaya & peninggalan Jawa klasik", R.drawable.sonobudoyo),
+            Edukasi("Desa Wisata Krebet", "Belajar membatik kayu khas Bantul", R.drawable.krebet),
+            Edukasi("Kasongan", "Membuat gerabah & keramik tradisional", R.drawable.kasongan),
+            Edukasi("Kebun Buah Langka Sedayu", "Wisata edukasi petik buah & agrikultur", R.drawable.sedayu)
+        )
+    }
+
+    Column(modifier = modifier.fillMaxSize().padding(8.dp)) {
+        // Header bar dengan tombol back
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(bottom = 16.dp)
+        ) {
+            IconButton(onClick = { navController.popBackStack() }) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Return"
+                )
+            }
+            Text(
+                text = "Wisata Edukasi",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.headlineMedium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(end = 48.dp)
+            )
+        }
+
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(daftarEdukasi) { item ->
+                Column(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color.White)
+                ) {
+                    Image(
+                        painter = painterResource(id = item.imageRes),
+                        contentDescription = item.name,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(120.dp)
+                    )
+                    Column(modifier = Modifier.padding(8.dp)) {
+                        Text(text = item.name, fontWeight = FontWeight.Bold)
+                        Text(
+                            text = item.description,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Gray
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun HiburanPage(navController: NavController, modifier: Modifier = Modifier) {
+    val daftarHiburan = remember {
+        listOf(
+            Hiburan("Sindu Kusuma Edupark", "Taman bermain keluarga dengan bianglala raksasa", R.drawable.ske),
+            Hiburan("HeHa Sky View", "Spot selfie dan restoran dengan pemandangan kota", R.drawable.heha_sky),
+            Hiburan("Jogja Bay Waterpark", "Wahana air terbesar di Jogja", R.drawable.jogja_bay),
+            Hiburan("Obelix Hills", "Tempat sunset romantis & kuliner", R.drawable.obelix),
+            Hiburan("Tebing Breksi", "Wisata alam & pertunjukan terbuka", R.drawable.tebing_breksi),
+            Hiburan("HeHa Ocean View", "View laut selatan + spot foto estetik", R.drawable.heha_ocean)
+        )
+    }
+
+    Column(modifier = modifier.fillMaxSize().padding(8.dp)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(bottom = 16.dp)
+        ) {
+            IconButton(onClick = { navController.popBackStack() }) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Return"
+                )
+            }
+            Text(
+                text = "Wisata Hiburan",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.headlineMedium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(end = 48.dp)
+            )
+        }
+
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(daftarHiburan) { item ->
+                Column(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color.White)
+                ) {
+                    Image(
+                        painter = painterResource(id = item.imageRes),
+                        contentDescription = item.name,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(120.dp)
+                    )
+                    Column(modifier = Modifier.padding(8.dp)) {
+                        Text(text = item.name, fontWeight = FontWeight.Bold)
+                        Text(
+                            text = item.description,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Gray
+                        )
+                    }
                 }
             }
         }
