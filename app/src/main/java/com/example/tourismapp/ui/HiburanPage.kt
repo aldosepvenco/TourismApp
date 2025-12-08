@@ -2,6 +2,7 @@ package com.example.tourismapp.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -9,10 +10,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,78 +33,69 @@ fun HiburanPage(
     navController: NavController,
     modifier: Modifier = Modifier
 ) {
+
     val context = LocalContext.current
-    val db = AppDatabase.getDatabase(context)
-    val hiburanDao = db.hiburanDao()
+    val hiburanDao = AppDatabase.getDatabase(context).hiburanDao()
 
     var daftarHiburan by remember { mutableStateOf<List<HiburanEntity>>(emptyList()) }
 
-    // Load data dari database
     LaunchedEffect(Unit) {
-        daftarHiburan = withContext(Dispatchers.IO) {
-            hiburanDao.getAll()
-        }
+        daftarHiburan = withContext(Dispatchers.IO) { hiburanDao.getAll() }
     }
 
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp)
+        modifier = modifier.fillMaxSize().padding(16.dp)
     ) {
 
         // HEADER
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp)
+            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
         ) {
             IconButton(onClick = { navController.popBackStack() }) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Return"
-                )
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
             }
-
             Text(
                 text = "Wisata Hiburan",
-                fontSize = 20.sp,
+                fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(start = 16.dp)
             )
         }
 
-        // GRID LIST
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.fillMaxSize()
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+
             items(daftarHiburan) { item ->
-                Column(
+
+                Card(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(Color.White)
+                        .fillMaxWidth()
+                        .clickable {
+                            navController.navigate("detail/hiburan/${item.id}")
+                        },
+                    elevation = CardDefaults.cardElevation(6.dp),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
-                    Image(
-                        painter = painterResource(id = item.imageRes),
-                        contentDescription = item.name,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(120.dp)
-                    )
-                    Column(modifier = Modifier.padding(8.dp)) {
-                        Text(
-                            text = item.name,
-                            fontWeight = FontWeight.Bold
+
+                    Column(
+                        modifier = Modifier.background(Color.White)
+                    ) {
+                        Image(
+                            painter = painterResource(id = item.imageRes),
+                            contentDescription = item.name,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(120.dp),
+                            contentScale = ContentScale.Crop
                         )
-                        Text(
-                            text = item.description,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color.Gray
-                        )
+                        Column(modifier = Modifier.padding(8.dp)) {
+                            Text(item.name, fontWeight = FontWeight.Bold)
+                            Text(item.description, color = Color.Gray)
+                        }
                     }
                 }
             }

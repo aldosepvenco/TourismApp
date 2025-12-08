@@ -23,6 +23,8 @@ import com.example.tourismapp.ui.HiburanPage
 import com.example.tourismapp.ui.HomeScreen
 import com.example.tourismapp.ui.KulinerPage
 import com.example.tourismapp.ui.PantaiPage
+import com.example.tourismapp.ui.DetailScreen
+import com.example.tourismapp.ui.KabupatenPage
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,19 +43,78 @@ class MainActivity : ComponentActivity() {
 fun TourismApp() {
     TourismAppTheme {
 
-        Scaffold { innerPadding ->
-            val navController = rememberNavController()
+        val navController = rememberNavController()
 
-            // Untuk menentukan apakah welcome screen masih tampil atau tidak
-            var showWelcomeScreen by rememberSaveable { mutableStateOf(true) }
+        // Untuk menentukan apakah welcome screen tampil pertama kali
+        var showWelcomeScreen by rememberSaveable { mutableStateOf(true) }
+
+        Scaffold { innerPadding ->
 
             NavHost(
                 navController = navController,
                 startDestination = if (showWelcomeScreen) "welcome" else "home",
                 modifier = androidx.compose.ui.Modifier.padding(innerPadding)
             ) {
+                // ==============================
+// HOME PAGE
+// ==============================
+                composable("home") {
+                    HomeScreen(navController)
+                }
 
-                // Welcome Page
+// ==============================
+// KABUPATEN PAGES BARU
+// ==============================
+                composable("kab_sleman") {
+                    KabupatenPage(navController, "Sleman")
+                }
+                composable("kab_bantul") {
+                    KabupatenPage(navController, "Bantul")
+                }
+                composable("kab_gunungkidul") {
+                    KabupatenPage(navController, "Gunungkidul")
+                }
+                composable("kab_kulonprogo") {
+                    KabupatenPage(navController, "Kulon Progo")
+                }
+                composable("kab_yogyakarta") {
+                    KabupatenPage(navController, "Yogyakarta")
+                }
+
+// ==============================
+// KATEGORI PAGES LAMA
+// ==============================
+                composable("gunung_page") { GunungPage(navController) }
+                composable("pantai_page") { PantaiPage(navController) }
+                composable("edukasi_page") { EdukasiPage(navController) }
+                composable("hiburan_page") { HiburanPage(navController) }
+                composable("budaya_page") { BudayaPage(navController) }
+                composable("kuliner_page") { KulinerPage(navController) }
+
+
+                // ==============================
+                // DETAIL PAGE ROUTE
+                // ==============================
+                composable(
+                    route = "detail/{category}/{id}"
+                ) { backStackEntry ->
+
+                    val category =
+                        backStackEntry.arguments?.getString("category") ?: ""
+
+                    val id =
+                        backStackEntry.arguments?.getString("id")?.toInt() ?: 0
+
+                    DetailScreen(
+                        navController = navController,
+                        category = category,
+                        id = id
+                    )
+                }
+
+                // ==============================
+                // WELCOME PAGE
+                // ==============================
                 composable("welcome") {
                     WelcomeScreen(
                         onGetStartedClick = {
@@ -65,12 +126,16 @@ fun TourismApp() {
                     )
                 }
 
-                // Home Page
+                // ==============================
+                // HOME PAGE
+                // ==============================
                 composable("home") {
                     HomeScreen(navController)
                 }
 
-                // Semua halaman kategori
+                // ==============================
+                // KATEGORI PAGES
+                // ==============================
                 composable("gunung_page") { GunungPage(navController) }
                 composable("pantai_page") { PantaiPage(navController) }
                 composable("edukasi_page") { EdukasiPage(navController) }

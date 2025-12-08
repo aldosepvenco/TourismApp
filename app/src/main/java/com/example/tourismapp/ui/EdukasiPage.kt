@@ -2,29 +2,26 @@ package com.example.tourismapp.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -35,11 +32,6 @@ import com.example.tourismapp.data.AppDatabase
 import com.example.tourismapp.data.EdukasiEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.Icons
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 
 @Composable
 fun EdukasiPage(navController: NavController, modifier: Modifier = Modifier) {
@@ -48,64 +40,91 @@ fun EdukasiPage(navController: NavController, modifier: Modifier = Modifier) {
     val db = AppDatabase.getDatabase(context)
     val edukasiDao = db.edukasiDao()
 
-    // state data
-    var daftarEdukasi by remember { mutableStateOf(emptyList<EdukasiEntity>()) }
+    var daftarEdukasi by remember { mutableStateOf<List<EdukasiEntity>>(emptyList()) }
 
-    // ambil data via coroutine
+    // Load data
     LaunchedEffect(Unit) {
         daftarEdukasi = withContext(Dispatchers.IO) {
-            edukasiDao.getAll()  // suspend function
+            edukasiDao.getAll()
         }
     }
 
-    Column(modifier = modifier.fillMaxSize().padding(8.dp)) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
 
+        // HEADER
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp)
         ) {
             IconButton(onClick = { navController.popBackStack() }) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Return"
+                    contentDescription = "Back"
                 )
             }
+
             Text(
                 text = "Wisata Edukasi",
-                fontSize = 20.sp,
+                fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(start = 16.dp)
+                modifier = Modifier.padding(start = 12.dp)
             )
         }
 
+        // GRID LIST
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(daftarEdukasi.size) { index ->
-                val item = daftarEdukasi[index]
 
-                Column(
+            // ❗ Gunakan items(list) — BUKAN items(count=...)
+            items(daftarEdukasi) { item ->
+
+                Card(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(Color.White)
+                        .fillMaxWidth()
+                        .clickable {
+                            navController.navigate("detail/edukasi/${item.id}")
+                        },
+                    shape = RoundedCornerShape(12.dp),
+                    elevation = CardDefaults.cardElevation(6.dp)
                 ) {
-                    Image(
-                        painter = painterResource(id = item.imageRes),
-                        contentDescription = item.name,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(120.dp)
-                    )
-                    Column(modifier = Modifier.padding(8.dp)) {
-                        Text(text = item.name, fontWeight = FontWeight.Bold)
-                        Text(
-                            text = item.description,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color.Gray
+
+                    Column(
+                        modifier = Modifier.background(Color.White)
+                    ) {
+
+                        // GAMBAR
+                        Image(
+                            painter = painterResource(id = item.imageRes),
+                            contentDescription = item.name,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(120.dp)
                         )
+
+                        // TEXT
+                        Column(modifier = Modifier.padding(8.dp)) {
+                            Text(
+                                text = item.name,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp
+                            )
+                            Text(
+                                text = item.description,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.Gray,
+                                maxLines = 2
+                            )
+                        }
                     }
                 }
             }

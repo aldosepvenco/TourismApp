@@ -53,6 +53,17 @@ android {
 }
 
 dependencies {
+    // Retrofit untuk API
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
+    implementation("com.google.accompanist:accompanist-permissions:0.34.0")
+
+
+
+// Coil untuk gambar internet
+    implementation("io.coil-kt:coil-compose:2.3.0")
+
 //core
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -68,6 +79,8 @@ dependencies {
     // Room (Migrated to Version Catalog)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.compose.foundation)
+    implementation(libs.play.services.location)
     ksp(libs.androidx.room.compiler)
 
     //testing
