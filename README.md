@@ -1,19 +1,19 @@
-# TourismApp 🌍
+# 🌍 TourismApp
 
-TourismApp is an Android application that showcases tourism destinations
-with an offline-first approach and clean Android architecture.
+TourismApp is an Android application that showcases tourism destinations with an
+**offline-first approach** and **clean Android architecture**.
 
-This project was developed as a portfolio project to demonstrate
-modern Android development practices.
+This project was developed as a **portfolio project** to demonstrate modern
+Android development best practices.
 
 ---
 
 ## ✨ Features
-- Tourism destination list by category
-- Detail destination screen
-- Offline-first local database (Room)
+- Tourism destinations categorized by type
+- Detail screen for each destination
+- Offline-first local database using Room
 - Weather information using online API
-- Modern UI with Jetpack Compose
+- Modern UI built with Jetpack Compose
 
 ---
 
@@ -41,9 +41,9 @@ The application follows a clean and scalable architecture:
 ## 📂 Project Structure
 app/
 ├─ data/
-│ ├─ local/
-│ ├─ remote/
-│ └─ repository/
+│ ├─ local/ # Room Database
+│ ├─ remote/ # Weather API
+│ └─ repository/ # Data abstraction
 │
 ├─ ui/
 │ ├─ home/
@@ -51,9 +51,29 @@ app/
 │ └─ welcome/
 │
 └─ MainActivity.kt
+
 ---
 
-## 👤 Created By
+## 🚀 Getting Started
+1. Clone this repository
+2. Open the project in Android Studio
+3. Sync Gradle
+4. Run the app on emulator or physical device
+
+> The application can run without an internet connection.  
+> Weather feature requires an active internet connection.
+
+---
+
+## 🔮 Future Improvements
+- Google Maps integration
+- Online REST API backend
+- Authentication system
+- Pagination and caching
+
+---
+
+## 👤 Author
 **Aldo Sepvenco**  
-Android Developer  
-This project was created for learning and portfolio purposes.
+Android Developer (Entry Level)  
+GitHub: https://github.com/aldosepvenco
