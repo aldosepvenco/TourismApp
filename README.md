@@ -39,3 +39,21 @@ The application follows a clean and scalable architecture:
 ---
 
 ## 📂 Project Structure
+app/
+├─ data/
+│ ├─ local/
+│ ├─ remote/
+│ └─ repository/
+│
+├─ ui/
+│ ├─ home/
+│ ├─ detail/
+│ └─ welcome/
+│
+└─ MainActivity.kt
+---
+
+## 👤 Created By
+**Aldo Sepvenco**  
+Android Developer  
+This project was created for learning and portfolio purposes.
